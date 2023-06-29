@@ -26,6 +26,7 @@ id	employee
 1	Иванов И.И., директор
 2	Петров П.П., менеджер
 3	Сидоров С.С.,менеджер
+
 Из-за этого нам нелегко, например, найти всех менеджеров, или выбрать только фамилии без должностей. Также, непросто написать запрос для изменения должности сотрудника, например, с "менеджер" на "старший менеджер". Для решения проблемы необходимо вынести должность в отдельную колонку. Также, возможно, имеет смысл разбить ФИО на 3 отдельных колонки, но это зависит от того, как они будут использоваться - всегда вместе или по отдельности.
 
 Вот другой пример нарушения 1NF. Допустим, у нас есть блог и к каждому посту можно добавить теги (темы, к которым относится пост). Разработчик не соблюдает принцип атомарности в таблице posts и хранит в одной ячейке все теги сразу:
@@ -34,6 +35,7 @@ id	title	tags
 1	Основы PHP	PHP, программирование
 2	Мой кот	кот, личное
 3	Циклы в PHP	PHP, циклы
+
 Имеем такие недостатки: название тега не может содержать в себе запятую. Неудобно искать посты по тегу. Чтобы добавить или убрать тег, надо сначала выбрать полный список тегов, отредактировать его и сохранить обратно и это нелегко сделать одним запросом. Если мы захотим переименовать тег, то придется делать поиск и замену по всей таблице (и есть риск, что вместе с заменой тега "PHP" мы заменим и тег "уроки PHP"). Трудно вывести список тегов и число постов по каждому. Нельзя добавить тегу какие-то свойства (например, цвет или ссылку).
 
 Для исправления проблемы теги необходимо сделать отдельной сущностью. Для этого нужно сделать отдельную таблицу tags для них:
@@ -44,11 +46,10 @@ id	name
 3	кот
 4	личное
 5	циклы
+
 И таблицу связи постов с тегами (многие-ко-многим) posts_to_tags, состоящую из 2 колонок tag_id и post_id. Первичным ключом в ней будет эта пара колонок (это заодно не позволит поставить посту 2 одинаковых тега, так как значения первичного ключа должны быть уникальны).
 
 Мы заменили одну таблицу на три, но зато теперь с ними стало проще работать. Попробуй написать SQL-запросы для добавления тега к посту, удаления, переименования и увидишь разницу.
-
-
 
 CREATE TABLE myposts (
 Id SERIAL PRIMARY KEY, 
@@ -66,83 +67,22 @@ post_id INTEGER,
 PRIMARY KEY (tag_id, post_id)
 );
 
+INSERT INTO myposts VALUES (1,'Basics of php');
+INSERT INTO myposts VALUES (2,'My cat');
+INSERT INTO myposts VALUES (3,'Loops in php');
 
-******************
+INSERT INTO tags VALUES (1,'php');
+INSERT INTO tags VALUES (2,'programming');
+INSERT INTO tags VALUES (3,' cat');
+INSERT INTO tags VALUES (4,'personal');
+INSERT INTO tags VALUES (5,'loops');
 
-INSERT INTO myposts VALUES (
-1,
-'Basics of php'
-);
-
-INSERT INTO myposts VALUES (
-2,
-'My cat'
-);
-
-INSERT INTO myposts VALUES (
-3,
-'Loops in php'
-);
-
-***************
-
-INSERT INTO tags VALUES (
-1,
-'php'
-);
-
-INSERT INTO tags VALUES (
-2,
-'programming'
-);
-
-INSERT INTO tags VALUES (
-3,
-' cat'
-);
-
-INSERT INTO tags VALUES (
-4,
-'personal'
-);
-
-INSERT INTO tags VALUES (
-5,
-'loops'
-);
-
-*********************
-
-INSERT INTO posts_to_tags VALUES (
-1,
-1
-);
-
-INSERT INTO posts_to_tags VALUES (
-2,
-1
-);
-
-INSERT INTO posts_to_tags VALUES (
-3,
-2
-);
-
-INSERT INTO posts_to_tags VALUES (
-4,
-2
-);
-
-INSERT INTO posts_to_tags VALUES (
-1,
-3
-);
-
-INSERT INTO posts_to_tags VALUES (
-5,
-3
-);
-
+INSERT INTO posts_to_tags VALUES (1,1);
+INSERT INTO posts_to_tags VALUES (2,1);
+INSERT INTO posts_to_tags VALUES (3,2);
+INSERT INTO posts_to_tags VALUES (4,2);
+INSERT INTO posts_to_tags VALUES (1,3);
+INSERT INTO posts_to_tags VALUES (5,3);
 
 ********************
 posts=# select * from myposts ;
